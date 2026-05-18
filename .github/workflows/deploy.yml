@@ -1,0 +1,55 @@
+name: Deploy VitePress site to GitHub Pages
+
+# 當 main 分支有更新時，自動部署網站
+on:
+  push:
+    branches: [main]
+
+# GitHub Pages 部署需要的權限
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# 避免同時跑多個部署工作
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 下載你的 GitHub repo 內容
+      - uses: actions/checkout@v4
+
+      # 安裝 Node.js
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      # 安裝套件
+      - run: npm install
+
+      # 建立靜態網站
+      - run: npm run docs:build
+
+      # 上傳 build 後的網站檔案，給 GitHub Pages 使用
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs/.vitepress/dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      # 正式部署到 GitHub Pages
+      - id: deployment
+        uses: actions/deploy-pages@v4

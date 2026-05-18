@@ -1,0 +1,10 @@
+# Node.js 套件資料夾，不要上傳到 GitHub
+node_modules
+
+# VitePress build 產物，GitHub Actions 會自動產生
+.vitepress/dist
+docs/.vitepress/dist
+
+# 系統暫存檔
+.DS_Store
+Thumbs.db
